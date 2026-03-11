@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Muzeau Drink Terminal — 4K</title>
+  <meta name="theme-color" content="#000000" />
+
+  <style>
+    @font-face {
+      font-family: "DotMatrix";
+      src: url("./DOTMATRI.TTF") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "DotMatrixBold";
+      src: url("./DOTMBold.TTF") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --text:        #ff4a1f;
+      --text-dim:    rgba(255, 74, 31, 0.72);
+      --text-faint:  rgba(255, 74, 31, 0.38);
+      --line:        rgba(255, 74, 31, 0.24);
+      --line-strong: rgba(255, 74, 31, 0.46);
+
+      /* 4K base sizes — everything in px anchored to 3840 wide */
+      --fs-topbar:   28px;
+      --fs-syscode:  26px;
+      --fs-brand:    190px;
+      --fs-sub:      52px;
+      --fs-venue:    40px;
+      --fs-seccode:  26px;
+      --fs-sectitle: 110px;
+      --fs-divider:  34px;
+      --fs-item:     64px;
+      --fs-price:    64px;
+      --fs-note:     46px;
+      --fs-subnote:  34px;
+      --fs-ticker:   30px;
+      --fs-footer:   36px;
+      --fs-footbig:  52px;
+
+      --pad-h:       80px;
+      --pad-v:       48px;
+      --gap-item:    28px;
+      --gap-section: 56px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 3840px;
+      height: 2160px;
+      overflow: hidden;
+      background: #000;
+      font-family: "DotMatrix", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text);
+
+      /* force proper rendering */
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeSpeed;
+      font-smooth: never;
+
+      transform: translateZ(0);
+    }
+    body {
+      will-change: transform;
+    }
+    /* ── SCANLINE OVERLAY ── */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.022) 0px,
+          rgba(255,255,255,0.022) 2px,
+          transparent 2px,
+          transparent 6px
+        );
+      mix-blend-mode: screen;
+    }
+
+    /* ── VIGNETTE ── */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 101;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.55) 100%);
+    }
+
+    /* ══════════════════════════════════════════
+       OUTER FRAME — full 3840×2160
+    ══════════════════════════════════════════ */
+    .tv {
+      width: 3840px;
+      height: 2160px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto auto;
+      /* rows: topbar | header | main-content | ticker | footer */
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255,74,31,0.06) 0%, transparent 40%),
+        linear-gradient(to bottom, #020202, #000 18%, #010101 75%, #000);
+      border: 2px solid var(--line-strong);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 22px var(--pad-h);
+      border-bottom: 2px solid var(--line);
+      font-size: var(--fs-topbar);
+      color: var(--text-faint);
+      letter-spacing: 0.14em;
+    }
+    .topbar-center { text-align: center; }
+    .topbar-right  { text-align: right; }
+
+    /* ── HEADER ── */
+    .header {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      border-bottom: 2px solid var(--line-strong);
+    }
+
+    
+    .header-left {
+      padding: var(--pad-v) var(--pad-h);
+      border-right: none;
+    }
+
+    .header-divider {
+      background: var(--line-strong);
+      align-self: stretch;
+    }
+
+    .header-right {
+      padding: var(--pad-v) var(--pad-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .system-id {
+      font-size: var(--fs-syscode);
+      color: var(--text-faint);
+      letter-spacing: 0.18em;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: var(--fs-brand);
+      line-height: 0.88;
+      letter-spacing: 0.1em;
+      text-shadow:
+        0 0 4px  rgba(255,74,31,0.9),
+        0 0 20px rgba(255,74,31,0.22),
+        0 0 60px rgba(255,74,31,0.08);
+    }
+
+    .brand-sub {
+      display: block;
+      font-size: var(--fs-sub);
+      line-height: 1.2;
+      letter-spacing: 0.22em;
+      color: var(--text-dim);
+      margin-top: 18px;
+    }
+
+    .venue {
+      font-size: var(--fs-venue);
+      color: var(--text-dim);
+      line-height: 1.6;
+      letter-spacing: 0.12em;
+      padding-top: 32px;
+      border-top: 2px solid var(--line);
+      margin-top: 32px;
+    }
+
+    /* ── MAIN CONTENT STAGE ── */
+    #content-stage {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* single-col screens span both columns */
+    .screen.single-col {
+      grid-template-columns: 1fr;
+    }
+
+    .col {
+      padding: var(--pad-v) var(--pad-h);
+    }
+
+    .col-divider {
+      background: var(--line);
+      align-self: stretch;
+    }
+
+    /* intro / signature special layouts */
+    .intro-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: var(--pad-v) var(--pad-h);
+    }
+
+    /* ── SECTION ELEMENTS ── */
+    .section-code {
+      display: block;
+      font-size: var(--fs-seccode);
+      color: var(--text-faint);
+      letter-spacing: 0.18em;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: var(--fs-sectitle);
+      line-height: 0.92;
+      letter-spacing: 0.14em;
+      margin-bottom: 18px;
+      text-shadow: 0 0 8px rgba(255,74,31,0.12);
+    }
+
+    .divider-bar {
+      font-size: var(--fs-divider);
+      color: var(--text-faint);
+      white-space: nowrap;
+      overflow: hidden;
+      margin-bottom: 36px;
+      line-height: 1;
+    }
+
+    /* ── MENU ITEMS ── */
+    .menu-list { display: grid; gap: var(--gap-item); }
+
+    .item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: end;
+      font-size: var(--fs-item);
+      line-height: 1.05;
+    }
+
+    .name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .price {
+      white-space: nowrap;
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      color: var(--text);
+    }
+
+    .leader {
+      min-width: 20px;
+      height: 0.75em;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .leader::before {
+      content: "..............................................................................................................................................................................................................";
+      position: absolute;
+      left: 0; right: 0; bottom: -0.08em;
+      white-space: nowrap;
+      overflow: hidden;
+      color: rgba(255,74,31,0.48);
+      letter-spacing: 0.04em;
+      font-size: 0.82em;
+      line-height: 1;
+    }
+
+    /* ── SHOOTERS / PLAIN LIST ── */
+    .block-note {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: var(--fs-note);
+      color: var(--text-dim);
+      margin-bottom: 28px;
+      line-height: 1.2;
+    }
+
+    .plain-list {
+      display: grid;
+      gap: 20px;
+      font-size: var(--fs-item);
+      line-height: 1.1;
+    }
+
+    .plain-list div {
+      position: relative;
+      padding-left: 1.2em;
+    }
+
+    .plain-list div::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: var(--text-faint);
+    }
+
+    .subnote {
+      margin-top: 32px;
+      font-size: var(--fs-subnote);
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .ghost { color: transparent; }
+
+    /* ── INTRO SCREEN ── */
+    .intro-big {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: 280px;
+      line-height: 0.88;
+      letter-spacing: 0.1em;
+      text-shadow:
+        0 0 4px  rgba(255,74,31,0.9),
+        0 0 24px rgba(255,74,31,0.22),
+        0 0 80px rgba(255,74,31,0.08);
+    }
+
+    .intro-medium {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: 100px;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      margin-top: 24px;
+    }
+
+    .intro-cats {
+      margin-top: 60px;
+      font-size: 60px;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      line-height: 1.9;
+    }
+
+    /* ── SIGNATURE SCREEN ── */
+    .sig-big {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      font-size: 120px;
+      letter-spacing: 0.14em;
+      line-height: 1.3;
+      text-shadow:
+        0 0 4px  rgba(255,74,31,0.9),
+        0 0 20px rgba(255,74,31,0.2);
+    }
+
+    .sig-sub {
+      font-size: 56px;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      line-height: 1.8;
+      margin-top: 40px;
+    }
+
+    /* ── TICKER ── */
+    .ticker-wrap {
+      border-top: 2px solid var(--line);
+      border-bottom: none;
+      padding: 14px 0 12px;
+      background: rgba(255,74,31,0.025);
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: var(--fs-ticker);
+      letter-spacing: 0.16em;
+      color: var(--text-faint);
+      animation: ticker 40s linear infinite;
+    }
+
+    @keyframes ticker {
+      0%   { transform: translateX(3840px); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr 2px 1fr;
+      border-top: 2px solid var(--line-strong);
+    }
+
+    .footer-col {
+      padding: 32px var(--pad-h);
+    }
+
+    .footer-rule {
+      font-size: 34px;
+      color: var(--text-faint);
+      white-space: nowrap;
+      overflow: hidden;
+      margin-bottom: 18px;
+      line-height: 1;
+    }
+
+    .footer-copy {
+      font-size: var(--fs-footer);
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .footer-copy strong {
+      font-family: "DotMatrixBold", "DotMatrix", monospace;
+      color: var(--text);
+      font-size: var(--fs-footbig);
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* ── FLIP ANIMATIONS ── */
+    @keyframes flipIn {
+      0%   { transform: rotateX(90deg); opacity: 0; }
+      42%  { transform: rotateX(-7deg); opacity: 1; }
+      72%  { transform: rotateX(2deg); }
+      100% { transform: rotateX(0deg); opacity: 1; }
+    }
+
+    @keyframes flipOut {
+      0%   { transform: rotateX(0deg);  opacity: 1; }
+      100% { transform: rotateX(-90deg); opacity: 0; }
+    }
+
+    .flip-line, .flip-wrap {
+      display: block;
+      overflow: hidden;
+      transform-origin: top center;
+      perspective: 800px;
+    }
+
+    .line-enter { animation: flipIn 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+    .line-exit  { animation: flipOut 0.20s ease-in both; }
+
+    .flip-line,
+    .flip-wrap,
+    .brand,
+    .section-title,
+    .item,
+    .intro-big,
+    .intro-medium {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+
+
+    /* ambient flicker */
+    @keyframes flicker {
+      0%, 96%, 100% { opacity: 1; }
+      96.5% { opacity: 0.91; }
+      97%   { opacity: 1; }
+      97.8% { opacity: 0.95; }
+    }
+
+    #content-stage { animation: flicker 9s infinite; }
+
+    /* glow pulse on brand */
+    @keyframes glowPulse {
+      0%, 100% { text-shadow: 0 0 4px rgba(255,74,31,0.9), 0 0 20px rgba(255,74,31,0.22), 0 0 60px rgba(255,74,31,0.08); }
+      50%       { text-shadow: 0 0 4px rgba(255,74,31,0.9), 0 0 40px rgba(255,74,31,0.32), 0 0 100px rgba(255,74,31,0.14); }
+    }
+    .brand { animation: glowPulse 4s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+
+<div class="tv">
+
+  <!-- ══ TOPBAR ══ -->
+  <div class="topbar">
+    <div class="topbar-left">MUZEAU / BAR SYSTEM / DISPLAY UNIT — NODE 58</div>
+    <div class="topbar-center">WELLINGTON N / SHERBROOKE / QC</div>
+    <div class="topbar-right" id="clock">00:00:00</div>
+  </div>
+
+  <!-- ══ HEADER (always visible) ══ -->
+  <div class="header">
+    <div class="header-left">
+      <p class="system-id">[ DRINK TERMINAL / V1.0 ]</p>
+      <h1 class="brand">MUZEAU<span class="brand-sub">DRINK TERMINAL</span></h1>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-right">
+      <div class="venue">
+        ESPACE MUZEAU<br>
+        58 WELLINGTON N<br>
+        SHERBROOKE
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ANIMATED CONTENT STAGE ══ -->
+  <main id="content-stage">
+
+    <!-- SCREEN 0: INTRO -->
+    <div class="screen single-col" data-duration="5500">
+      <div class="intro-col">
+        <div class="intro-big flip-line">MUZEAU</div>
+        <div class="intro-medium flip-line">BAR SYSTEM</div>
+        <div class="intro-cats">
+          <div class="flip-line">— DRINKS &amp; COCKTAILS</div>
+          <div class="flip-line">— BIÈRES</div>
+          <div class="flip-line">— SPIRITUEUX &amp; SHOOTERS</div>
+          <div class="flip-line">— SANS ALCOOL &amp; SNACKS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 1: DRINKS -->
+    <div class="screen" data-duration="8000">
+      <div class="col">
+        <span class="section-code flip-line">[ 01 ] BAR / MIXED DRINKS</span>
+        <h2 class="section-title flip-line">DRINKS</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">MOJITO</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">BLOODY CESAR</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">RHUM &amp; COKE</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">WHISKY &amp; COKE</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">GIN TONIC</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">VODKA RED BULL</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">KOMBUCHA MIX</span><span class="leader"></span><span class="price">9 / 12</span></div></div>
+        </div>
+      </div>
+      <div class="col-divider"></div>
+      <div class="col">
+        <span class="section-code flip-line">[ 02 ] PREMIUM COCKTAILS</span>
+        <h2 class="section-title flip-line">COCKTAILS</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">COSMOPOLITAN</span><span class="leader"></span><span class="price">14</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">LONG ISLAND</span><span class="leader"></span><span class="price">14</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">OLD FASHIONED</span><span class="leader"></span><span class="price">14</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: BIÈRES + SHOOTERS -->
+    <div class="screen" data-duration="8000">
+      <div class="col">
+        <span class="section-code flip-line">[ 03 ] BEER</span>
+        <h2 class="section-title flip-line">BIÈRES</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">TRAIN HOPPER</span><span class="leader"></span><span class="price">9</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">LÉGER MEXICAIN</span><span class="leader"></span><span class="price">9</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">AMERICAN ALE</span><span class="leader"></span><span class="price">9</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">SÛRE</span><span class="leader"></span><span class="price">9</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">1664</span><span class="leader"></span><span class="price">6</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">CORONA</span><span class="leader"></span><span class="price">6</span></div></div>
+        </div>
+      </div>
+      <div class="col-divider"></div>
+      <div class="col">
+        <span class="section-code flip-line">[ 04 ] SHOTS</span>
+        <h2 class="section-title flip-line">SHOOTERS</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <p class="block-note flip-line">UNIT PRICE // 4$</p>
+        <div class="plain-list">
+          <div class="flip-line">VODKA WARD</div>
+          <div class="flip-line">TEQUILA</div>
+          <div class="flip-line">RHUM</div>
+          <div class="flip-line">WHISKY</div>
+          <div class="flip-line">GIN</div>
+          <div class="flip-line">TGV</div>
+          <div class="flip-line">FIREBALL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: SPIRITUEUX + SANS ALCOOL A -->
+    <div class="screen" data-duration="8000">
+      <div class="col">
+        <span class="section-code flip-line">[ 05 ] SPECIAL SPIRITS</span>
+        <h2 class="section-title flip-line">SPIRITUEUX</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">VODKA ÉRABLE — CHERRY RIVER</span><span class="leader"></span><span class="price">5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">ROSEMONT WHISKY — SMOKY</span><span class="leader"></span><span class="price">5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">TEQUILA SILVER — CHERRY RIVER</span><span class="leader"></span><span class="price">5</span></div></div>
+        </div>
+      </div>
+      <div class="col-divider"></div>
+      <div class="col">
+        <span class="section-code flip-line">[ 06 ] NON ALCOHOLIC — A</span>
+        <h2 class="section-title flip-line">SANS ALCOOL</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">VITAMIN WATER</span><span class="leader"></span><span class="price">5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">KOMBUCHA</span><span class="leader"></span><span class="price">5.5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">KWE</span><span class="leader"></span><span class="price">5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">EAU</span><span class="leader"></span><span class="price">1</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">RED BULL</span><span class="leader"></span><span class="price">6</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: SANS ALCOOL B + SNACKS -->
+    <div class="screen" data-duration="8000">
+      <div class="col">
+        <span class="section-code flip-line">[ 06 ] NON ALCOHOLIC — B</span>
+        <h2 class="section-title flip-line">SANS ALCOOL</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">COKE</span><span class="leader"></span><span class="price">3.5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">SEVEN UP</span><span class="leader"></span><span class="price">3.5</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">FRAPPUCCINO MOCHA</span><span class="leader"></span><span class="price">6</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">ARIZONA</span><span class="leader"></span><span class="price">3</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">SCHWEPPES</span><span class="leader"></span><span class="price">3.5</span></div></div>
+        </div>
+      </div>
+      <div class="col-divider"></div>
+      <div class="col">
+        <span class="section-code flip-line">[ 07 ] FOOD / COUNTER</span>
+        <h2 class="section-title flip-line">SNACKS</h2>
+        <div class="divider-bar flip-line">████████████████████████████████████████████</div>
+        <div class="menu-list">
+          <div class="flip-wrap"><div class="item"><span class="name">CHIPS</span><span class="leader"></span><span class="price ghost">--</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">NUTS</span><span class="leader"></span><span class="price ghost">--</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">POPCORN</span><span class="leader"></span><span class="price">FREE</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">BARRE CHOCOLAT</span><span class="leader"></span><span class="price ghost">--</span></div></div>
+          <div class="flip-wrap"><div class="item"><span class="name">BRETZEL</span><span class="leader"></span><span class="price ghost">--</span></div></div>
+        </div>
+        <p class="subnote flip-line">PRIX EN ATTENTE POUR CERTAINS ITEMS.</p>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: SIGNATURE -->
+    <div class="screen single-col" data-duration="5500">
+      <div class="intro-col" style="justify-content:center;">
+        <div class="sig-big">
+          <div class="flip-line">ESPACE MUZEAU</div>
+          <div class="flip-line">58 WELLINGTON N</div>
+          <div class="flip-line">SHERBROOKE</div>
+        </div>
+        <div class="sig-sub">
+          <div class="flip-line">SUPPORT ELECTRONIC CULTURE</div>
+          <div class="flip-line">THANK YOU FOR VISITING</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══ TICKER ══ -->
+  <div class="ticker-wrap">
+    <span class="ticker-track">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      WELCOME TO ESPACE MUZEAU &nbsp;//&nbsp; SUPPORT LOCAL ARTISTS &nbsp;//&nbsp;
+      ELECTRONIC CULTURE &nbsp;//&nbsp; 58 WELLINGTON N SHERBROOKE &nbsp;//&nbsp;
+      BONNE SOIRÉE &nbsp;//&nbsp; BIENVENUE &nbsp;//&nbsp;
+      WELCOME TO ESPACE MUZEAU &nbsp;//&nbsp; SUPPORT LOCAL ARTISTS &nbsp;//&nbsp;
+      ELECTRONIC CULTURE &nbsp;//&nbsp; 58 WELLINGTON N SHERBROOKE &nbsp;//&nbsp;
+      BONNE SOIRÉE &nbsp;//&nbsp; BIENVENUE &nbsp;//&nbsp;
+    </span>
+  </div>
+
+  <!-- ══ FOOTER (always visible) ══ -->
+  <div class="footer">
+    <div class="footer-col">
+      <div class="footer-rule">███████████████████████████████████████████████████████████</div>
+      <div class="footer-copy">
+        <strong>ESPACE MUZEAU</strong><br>
+        58 WELLINGTON N — SHERBROOKE<br>
+        SUPPORT ELECTRONIC CULTURE
+      </div>
+    </div>
+    <div class="col-divider" style="background:var(--line);"></div>
+    <div class="footer-col footer-right">
+      <div class="footer-copy" style="text-align:right;">
+        MUZEAU / BAR SYSTEM<br>
+        MENU // V1.0<br>
+        <span id="clock2" style="color:var(--text);font-family:'DotMatrixBold',monospace;font-size:52px;">00:00:00</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .tv -->
+
+<script>
+  // ── CLOCK ──
+  function updateClock() {
+    const now = new Date();
+    const t = [now.getHours(), now.getMinutes(), now.getSeconds()]
+      .map(n => String(n).padStart(2,'0')).join(':');
+    document.getElementById('clock').textContent  = t;
+    document.getElementById('clock2').textContent = t;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ── SEQUENCER ──
+  const screens = Array.from(document.querySelectorAll('#content-stage .screen'));
+  let current = 0;
+
+  function getLines(screen) {
+    return Array.from(screen.querySelectorAll('.flip-line, .flip-wrap'));
+  }
+
+  function showScreen(idx) {
+    const screen   = screens[idx];
+    const duration = parseInt(screen.dataset.duration) || 8000;
+    const lines    = getLines(screen);
+
+    screen.classList.add('active');
+
+    lines.forEach((line, i) => {
+      line.style.animation = 'none';
+      void line.offsetHeight;
+      line.style.animation = '';
+      line.style.animationDelay = `${i * 0.11}s`;
+      line.classList.remove('line-exit');
+      line.classList.add('line-enter');
+    });
+
+    const exitAt = Math.max(duration - lines.length * 110 - 500, duration * 0.62);
+
+    setTimeout(() => {
+      lines.forEach((line, i) => {
+        line.style.animationDelay = `${i * 0.065}s`;
+        line.classList.remove('line-enter');
+        line.classList.add('line-exit');
+      });
+
+      setTimeout(() => {
+        screen.classList.remove('active');
+        lines.forEach(line => {
+          line.classList.remove('line-exit');
+          line.style.animationDelay = '';
+        });
+        current = (current + 1) % screens.length;
+        showScreen(current);
+      }, lines.length * 65 + 320);
+
+    }, exitAt);
+  }
+
+  showScreen(0);
+</script>
+</body>
+</html>
