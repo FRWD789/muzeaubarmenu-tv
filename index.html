@@ -120,7 +120,7 @@
     }
 
     /* ── TOPBAR ── */
-    .topbar {
+    /* .topbar {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
@@ -129,7 +129,7 @@
       font-size: var(--fs-topbar);
       color: var(--text-faint);
       letter-spacing: 0.14em;
-    }
+    } */
     .topbar-center { text-align: center; }
     .topbar-right  { text-align: right; }
 
@@ -418,7 +418,7 @@
     .footer {
       display: grid;
       grid-template-columns: 1fr 2px 1fr;
-      border-top: 2px solid var(--line-strong);
+      /* border-top: 2px solid var(--line-strong); */
     }
 
     .footer-col {
@@ -511,25 +511,25 @@
 
   <!-- ══ TOPBAR ══ -->
   <div class="topbar">
-    <div class="topbar-left">MUZEAU / BAR SYSTEM / DISPLAY UNIT — NODE 58</div>
-    <div class="topbar-center">WELLINGTON N / SHERBROOKE / QC</div>
-    <div class="topbar-right" id="clock">00:00:00</div>
+    <!-- <div class="topbar-left">MUZEAU / BAR SYSTEM / DISPLAY UNIT — NODE 58</div>
+    <div class="topbar-center">WELLINGTON N / SHERBROOKE / QC</div>  -->
+    <!-- <div class="topbar-right" id="clock">00:00:00</div> -->
   </div>
 
   <!-- ══ HEADER (always visible) ══ -->
   <div class="header">
-    <div class="header-left">
+    <!-- <div class="header-left">
       <p class="system-id">[ DRINK TERMINAL / V1.0 ]</p>
       <h1 class="brand">MUZEAU<span class="brand-sub">DRINK TERMINAL</span></h1>
-    </div>
+    </div> -->
     <div class="header-divider"></div>
-    <div class="header-right">
+    <!-- <div class="header-right">
       <div class="venue">
         ESPACE MUZEAU<br>
         58 WELLINGTON N<br>
         SHERBROOKE
       </div>
-    </div>
+    </div> -->
   </div>
 
   <!-- ══ ANIMATED CONTENT STAGE ══ -->
@@ -684,6 +684,22 @@
     </div>
 
   </main>
+  <div class="footer">
+      <div class=" footer-col ">
+          <span  style="color:var(--text);font-family:'DotMatrixBold',monospace;font-size:52px;">Last Call 02:30 AM</span>
+      </div>
+<div></div>       <div class="footer-col footer-right">
+        <div class="footer-copy" style="text-align:right;">
+          MUZEAU / BAR SYSTEM<br>
+          MENU // V1.0<br>
+          <span id="clock2" style="color:var(--text);font-family:'DotMatrixBold',monospace;font-size:52px;">00:00:00</span>
+        </div>
+    </div>
+
+      </div>
+  </div>
+
+
 
   <!-- ══ TICKER ══ -->
   <div class="ticker-wrap">
@@ -699,7 +715,7 @@
   </div>
 
   <!-- ══ FOOTER (always visible) ══ -->
-  <div class="footer">
+  <!-- <div class="footer">
     <div class="footer-col">
       <div class="footer-rule">███████████████████████████████████████████████████████████</div>
       <div class="footer-copy">
@@ -716,7 +732,7 @@
         <span id="clock2" style="color:var(--text);font-family:'DotMatrixBold',monospace;font-size:52px;">00:00:00</span>
       </div>
     </div>
-  </div>
+  </div> -->
 
 </div><!-- .tv -->
 
@@ -726,7 +742,7 @@
     const now = new Date();
     const t = [now.getHours(), now.getMinutes(), now.getSeconds()]
       .map(n => String(n).padStart(2,'0')).join(':');
-    document.getElementById('clock').textContent  = t;
+    //document.getElementById('clock').textContent  = t;
     document.getElementById('clock2').textContent = t;
   }
   updateClock();
